@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Custom Services - SHAPED PRODUCTS</title>
+    <meta name="description" content="Custom AI solutions, website development, automation systems, and bespoke technology services by SHAPED PRODUCTS.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="192x192">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-silver: #C0C0C0;
+            --dark-bg: #0A0A0A;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #E5E7EB;
+            --text-secondary: rgba(192, 192, 192, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .text-silver {
+            color: var(--primary-silver);
+        }
+
+        .glassmorphism {
+            backdrop-filter: blur(15px);
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glassmorphism-strong {
+            backdrop-filter: blur(20px);
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .animated-scroll-fade {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        
+        .animated-scroll-fade.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .input-field {
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease-in-out;
+            font-size: 1rem;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-silver);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(192, 192, 192, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: rgba(192, 192, 192, 0.6);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid var(--primary-silver);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(192, 192, 192, 0.9));
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(192, 192, 192, 0.3);
+        }
+
+        .hero-gradient {
+            background: radial-gradient(ellipse at center, rgba(192, 192, 192, 0.1) 0%, transparent 70%);
+        }
+
+        .section-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(192, 192, 192, 0.3), transparent);
+            margin: 2rem 0;
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(192, 192, 192, 0.1);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .service-icon {
+            width: 4rem;
+            height: 4rem;
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(255, 255, 255, 0.1));
+            border-radius: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .price-badge {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.2), rgba(255, 255, 255, 0.1));
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            display: inline-block;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        #hero-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+<body class="bg-[#0A0A0A] text-white">
+
+    <!-- Global fixed background 3D canvas -->
+    <canvas id="hero-canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+    <!-- Sticky Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 glassmorphism-strong rounded-b-xl border-t-0">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="index.html" class="font-poppins text-lg md:text-xl font-bold tracking-wider text-white hover:text-silver transition-colors duration-300">SHAPED PRODUCTS</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="index.html" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Home
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#" class="text-sm font-medium text-white transition-colors duration-300 relative group">
+                    Custom Services
+                    <span class="absolute -bottom-1 left-0 w-full h-0.5 bg-silver"></span>
+                </a>
+                <a href="index.html#trading-ai-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Trading Bot
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="index.html#ai-tutoring-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Contact
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+            </nav>
+            <!-- Mobile menu button -->
+            <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10">
+            <nav class="flex flex-col space-y-3">
+                <a href="index.html" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Home</a>
+                <a href="#" class="text-sm font-medium text-white transition-colors duration-300" onclick="toggleMobileMenu()">Custom Services</a>
+                <a href="index.html#trading-ai-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Trading Bot</a>
+                <a href="index.html#ai-tutoring-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Contact</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero-section" class="relative h-screen flex flex-col justify-center items-center text-center p-4 md:p-8 overflow-hidden hero-gradient">
+            
+            <div class="relative z-10 hero-content max-w-5xl mx-auto">
+                <h1 class="font-poppins text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold tracking-tighter mb-6 text-white">
+                    CUSTOM AI SOLUTIONS
+                </h1>
+                <p class="text-lg sm:text-xl md:text-2xl text-silver/90 font-inter mb-8 max-w-4xl mx-auto">
+                    Bespoke Technology Solutions Tailored to Your Revolutionary Vision
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="#services-section" class="btn-primary inline-flex items-center">
+                        Explore Services
+                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </a>
+                    <a href="#contact-section" class="btn-primary bg-transparent border-2 border-silver/50 hover:border-silver">
+                        Get Quote
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Services Section -->
+        <section id="services-section" class="py-16 md:py-24 px-4 md:px-8">
+            <div class="container mx-auto max-w-7xl">
+                <div class="text-center mb-16 animated-scroll-fade">
+                    <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">Revolutionary Custom Services</h2>
+                    <p class="text-lg md:text-xl text-silver/80 mb-4 max-w-3xl mx-auto">
+                        Transform your ideas into reality with our cutting-edge AI solutions and custom development services.
+                    </p>
+                    <div class="section-separator"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <!-- Website Development -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £500</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Custom Website Development</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Modern, responsive websites with cutting-edge design, 3D animations, and AI integrations. Built for performance and conversion.
+                        </p>
+                        <ul class="space-y-2 mb-6 text-sm text-silver/70">
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Responsive Design
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                3D Animations
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                SEO Optimized
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                AI Integration
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- AI Solutions -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £1,000</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">AI Integration & Automation</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Custom AI solutions including chatbots, automation systems, machine learning models, and intelligent data processing.
+                        </p>
+                        <ul class="space-y-2 mb-6 text-sm text-silver/70">
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Custom AI Models
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Process Automation
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Data Analytics
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                API Integration
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Mobile Apps -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £800</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Mobile App Development</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Native and cross-platform mobile applications with modern UI/UX, AI features, and seamless cloud integration.
+                        </p>
+                        <!-- Mini 3D canvas preview -->
+                        <div class="rounded-2xl overflow-hidden border border-white/10 mb-2" style="height: 180px;">
+                            <canvas id="card3-canvas" class="w-full h-full"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- E-commerce Solutions -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £1,200</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">E-commerce Platforms</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Complete e-commerce solutions with AI-powered recommendations, inventory management, and advanced analytics.
+                        </p>
+                    </div>
+
+                    <!-- Blockchain & Web3 -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £2,000</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Blockchain & Web3</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Cutting-edge blockchain solutions, smart contracts, DeFi platforms, and Web3 applications.
+                        </p>
+                    </div>
+
+                    <!-- Consulting & Strategy -->
+                    <div class="glassmorphism p-8 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="service-icon">
+                            <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                            </svg>
+                        </div>
+                        <div class="price-badge">From £150/hour</div>
+                        <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Tech Consulting & Strategy</h3>
+                        <p class="text-silver/80 mb-6 leading-relaxed">
+                            Strategic technology consulting, digital transformation planning, and expert guidance.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Contact Section -->
+        <section id="contact-section" class="py-16 md:py-24 px-4 md:px-8">
+            <div class="container mx-auto max-w-4xl">
+                <div class="text-center mb-12 animated-scroll-fade">
+                    <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">Start Your Project Today</h2>
+                    <p class="text-lg md:text-xl text-silver/80 mb-4 max-w-3xl mx-auto">
+                        Ready to revolutionize your business? Let's discuss your custom solution and bring your vision to life.
+                    </p>
+                    <div class="section-separator"></div>
+                </div>
+                
+                <div class="glassmorphism-strong p-8 md:p-12 rounded-3xl animated-scroll-fade">
+                    <form id="custom-inquiry-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="inquiry-name" placeholder="Your Full Name" class="input-field" required>
+                            <input type="email" id="inquiry-email" placeholder="Your Email Address" class="input-field" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="inquiry-company" placeholder="Company Name (Optional)" class="input-field">
+                            <select id="inquiry-service" class="input-field" required>
+                                <option value="">Select Service Type</option>
+                                <option value="Website Development">Website Development</option>
+                                <option value="AI Integration">AI Integration & Automation</option>
+                                <option value="Mobile App">Mobile App Development</option>
+                                <option value="E-commerce">E-commerce Platform</option>
+                                <option value="Blockchain">Blockchain & Web3</option>
+                                <option value="Consulting">Tech Consulting</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <select id="inquiry-budget" class="input-field" required>
+                                <option value="">Project Budget</option>
+                                <option value="£500-£1,000">£500 - £1,000</option>
+                                <option value="£1,000-£2,500">£1,000 - £2,500</option>
+                                <option value="£2,500-£5,000">£2,500 - £5,000</option>
+                                <option value="£5,000-£10,000">£5,000 - £10,000</option>
+                                <option value="£10,000+">£10,000+</option>
+                            </select>
+                            <select id="inquiry-timeline" class="input-field" required>
+                                <option value="">Project Timeline</option>
+                                <option value="1-2 weeks">1-2 weeks</option>
+                                <option value="2-4 weeks">2-4 weeks</option>
+                                <option value="1-2 months">1-2 months</option>
+                                <option value="2-3 months">2-3 months</option>
+                                <option value="3+ months">3+ months</option>
+                            </select>
+                        </div>
+                        <textarea id="inquiry-message" placeholder="Describe your project vision, requirements, and any specific features you need..." class="input-field w-full h-32 resize-none" required></textarea>
+                        
+                        <div class="text-center">
+                            <button id="send-custom-inquiry-btn" type="button" onclick="sendCustomInquiry()" class="btn-primary px-12 py-4 text-lg font-semibold">
+                                <span id="btn-text">Send Project Inquiry</span>
+                                <span id="btn-loading" class="hidden">
+                                    <span class="loading-spinner mr-2"></span>
+                                    Sending...
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div id="custom-inquiry-status" class="text-center text-sm font-medium"></div>
+                    </form>
+                    
+                    <div class="mt-12 text-center">
+                        <p class="text-silver/60 text-sm mb-4">Or reach out directly:</p>
+                        <a href="mailto:enquiries@shapedproducts.dev" class="text-silver hover:text-white transition-colors duration-300 font-medium">
+                            enquiries@shapedproducts.dev
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 md:px-8 border-t border-silver/10">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center">
+                <p class="font-poppins text-xl font-bold text-white mb-4">SHAPED PRODUCTS</p>
+                <p class="text-silver/60 text-sm">© 2025 Shaped Products. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced 3D Model Integration (Global fixed canvas)
+        const canvas = document.getElementById('hero-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.7);
+        scene.add(ambientLight);
+
+        const directionalLight = new THREE.DirectionalLight(0xC0C0C0, 1.1);
+        directionalLight.position.set(5, 5, 5);
+        scene.add(directionalLight);
+
+        let model3D = null;
+        const clock = new THREE.Clock();
+
+        // Try to load GLB model with fallback
+        const loader = new THREE.GLTFLoader();
+        function addFallback() {
+            const geometry = new THREE.IcosahedronGeometry(2, 1);
+            const material = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, metalness: 0.8, roughness: 0.2 });
+            model3D = new THREE.Mesh(geometry, material);
+            scene.add(model3D);
+        }
+        try {
+            loader.load(
+                './assets/models/model.glb',
+                (gltf) => {
+                    model3D = gltf.scene;
+                    model3D.scale.set(1.5, 1.5, 1.5);
+                    model3D.position.set(0, 0, 0);
+                    model3D.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) {
+                                child.material.envMapIntensity = 1.2;
+                            }
+                        }
+                    });
+                    scene.add(model3D);
+                },
+                undefined,
+                (err) => { console.warn('GLB load failed on services page, using fallback', err); addFallback(); }
+            );
+        } catch (e) {
+            addFallback();
+        }
+
+        camera.position.z = 6;
+        camera.position.y = 0.8;
+
+        let mouseX = 0, mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - window.innerWidth / 2) / (window.innerWidth / 2);
+            mouseY = (event.clientY - window.innerHeight / 2) / (window.innerHeight / 2);
+        });
+
+        const animate = () => {
+            requestAnimationFrame(animate);
+
+            if (model3D) {
+                const time = clock.getElapsedTime();
+                // Smooth rotation with mouse
+                model3D.rotation.x += ((mouseY * 0.3) - model3D.rotation.x) * 0.05;
+                model3D.rotation.y += ((mouseX * 0.3) - model3D.rotation.y) * 0.05;
+                model3D.rotation.z += 0.002;
+
+                // Scroll-follow parallax so it "follows" while scrolling
+                const normalizedScroll = window.scrollY / window.innerHeight; // ~0..N
+                const s = Math.min(normalizedScroll, 4);
+                // Horizontal sway and vertical drift based on scroll
+                model3D.position.x = Math.sin(s * 0.8) * 2.2;
+                model3D.position.y = 0.5 - (s * 0.5) + Math.sin(time * 0.6) * 0.2;
+                model3D.position.z = -1.5 - (s * 0.6);
+            }
+
+            renderer.render(scene, camera);
+        };
+
+        window.addEventListener('load', () => {
+            animate();
+            initCard3MiniViewer();
+        });
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            // Also resize mini viewer if present
+            resizeCard3Renderer();
+        });
+
+        // Mini 3D viewer inside the 3rd service card (Mobile App Development)
+        const card3CanvasId = 'card3-canvas';
+        function initCard3MiniViewer() {
+            const cardCanvas = document.getElementById(card3CanvasId);
+            if (!cardCanvas) return;
+
+            const cw = cardCanvas.clientWidth || cardCanvas.parentElement.clientWidth;
+            const ch = cardCanvas.clientHeight || 160;
+
+            const sceneMini = new THREE.Scene();
+            const cameraMini = new THREE.PerspectiveCamera(60, cw / ch, 0.1, 100);
+            cameraMini.position.z = 4;
+
+            const rendererMini = new THREE.WebGLRenderer({ canvas: cardCanvas, antialias: true, alpha: true });
+            rendererMini.setSize(cw, ch);
+            rendererMini.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const lightMini = new THREE.DirectionalLight(0xffffff, 1);
+            lightMini.position.set(3, 3, 3);
+            sceneMini.add(lightMini);
+            sceneMini.add(new THREE.AmbientLight(0xffffff, 0.4));
+
+            const geo = new THREE.IcosahedronGeometry(1.2, 1);
+            const mat = new THREE.MeshStandardMaterial({ color: 0xC0C0C0, metalness: 0.7, roughness: 0.25 });
+            const mesh = new THREE.Mesh(geo, mat);
+            sceneMini.add(mesh);
+
+            let running = false;
+            function animateMini() {
+                if (!running) return;
+                requestAnimationFrame(animateMini);
+                mesh.rotation.x += 0.01;
+                mesh.rotation.y += 0.015;
+                rendererMini.render(sceneMini, cameraMini);
+            }
+
+            // Start/stop based on visibility
+            const io = new IntersectionObserver((entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting) {
+                        running = true;
+                        animateMini();
+                    } else {
+                        running = false;
+                    }
+                });
+            }, { threshold: 0.1 });
+            io.observe(cardCanvas);
+
+            // Save for resize usage
+            window.__card3Mini = { rendererMini, cameraMini, canvas: cardCanvas };
+        }
+
+        function resizeCard3Renderer() {
+            const ctx = window.__card3Mini;
+            if (!ctx) return;
+            const { rendererMini, cameraMini, canvas } = ctx;
+            const w = canvas.parentElement.clientWidth;
+            const h = canvas.parentElement.clientHeight || 160;
+            rendererMini.setSize(w, h);
+            cameraMini.aspect = w / h;
+            cameraMini.updateProjectionMatrix();
+        }
+
+        // Scroll animations
+        const faders = document.querySelectorAll('.animated-scroll-fade');
+        const appearOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const appearOnScroll = new IntersectionObserver(function(entries) {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('is-visible');
+                    appearOnScroll.unobserve(entry.target);
+                }
+            });
+        }, appearOptions);
+
+        faders.forEach(fader => {
+            appearOnScroll.observe(fader);
+        });
+
+        // Mobile menu functionality
+        window.toggleMobileMenu = () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        };
+
+        // Custom inquiry form functionality
+        window.sendCustomInquiry = () => {
+            const name = document.getElementById('inquiry-name').value.trim();
+            const email = document.getElementById('inquiry-email').value.trim();
+            const company = document.getElementById('inquiry-company').value.trim();
+            const service = document.getElementById('inquiry-service').value;
+            const budget = document.getElementById('inquiry-budget').value;
+            const timeline = document.getElementById('inquiry-timeline').value;
+            const message = document.getElementById('inquiry-message').value.trim();
+            const statusMessage = document.getElementById('custom-inquiry-status');
+
+            if (!name || !email || !service || !budget || !timeline || !message) {
+                statusMessage.textContent = 'Please fill out all required fields.';
+                statusMessage.classList.remove('text-green-400');
+                statusMessage.classList.add('text-red-400');
+                return;
+            }
+
+            const emailSubject = `Custom Service Inquiry - ${service}`;
+            const emailBody = `Name: ${name}\nEmail: ${email}\nCompany: ${company || 'Not specified'}\nService: ${service}\nBudget: ${budget}\nTimeline: ${timeline}\n\nProject Description:\n${message}`;
+
+            const mailtoLink = `mailto:enquiries@shapedproducts.dev?subject=${encodeURIComponent(emailSubject)}&body=${encodeURIComponent(emailBody)}`;
+            
+            window.location.href = mailtoLink;
+            
+            statusMessage.textContent = 'Email client opened! Please send the email to complete your inquiry.';
+            statusMessage.classList.remove('text-red-400');
+            statusMessage.classList.add('text-green-400');
+            
+            document.getElementById('custom-inquiry-form').reset();
+        };
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+    </script>
+</body>
+</html>

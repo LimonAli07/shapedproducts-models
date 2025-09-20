@@ -1,0 +1,897 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SHAPED PRODUCTS - Crafting Tomorrow's Solutions</title>
+    <meta name="description" content="SHAPED PRODUCTS - Revolutionary AI solutions, custom website development, intelligent automation, and breakthrough technology services.">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <link rel="icon" type="image/x-icon" href="/favicon.ico">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="64x64">
+    <link rel="apple-touch-icon" href="/favicon.png">
+    <meta name="msapplication-TileImage" content="/favicon.png">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+
+        // Firebase Initialization and Authentication
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        // Set Firebase debug level
+        setLogLevel('Debug');
+
+        let userId = null;
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userId = user.uid;
+                console.log("User signed in with UID:", userId);
+                
+                const userDocRef = doc(db, `artifacts/${appId}/users/${userId}/profile/data`);
+                await setDoc(userDocRef, { 
+                    lastLogin: new Date().toISOString(),
+                    status: 'active'
+                }, { merge: true });
+
+            } else {
+                console.log("User signed out or not authenticated.");
+                userId = null;
+            }
+        });
+
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        if (initialAuthToken) {
+            signInWithCustomToken(auth, initialAuthToken).catch((error) => {
+                console.error("Custom token sign-in failed:", error);
+                signInAnonymously(auth);
+            });
+        } else {
+            signInAnonymously(auth);
+        }
+        
+        // Function to navigate between sections
+        window.navigateTo = (sectionId) => {
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        // Function to send a tutoring inquiry
+        window.sendInquiry = async () => {
+            const name = document.getElementById('inquiry-name').value.trim();
+            const email = document.getElementById('inquiry-email').value.trim();
+            const message = document.getElementById('inquiry-message').value.trim();
+            const sendButton = document.getElementById('send-inquiry-btn');
+            const statusMessage = document.getElementById('inquiry-status');
+
+            if (!name || !email || !message) {
+                statusMessage.textContent = 'Please fill out all fields.';
+                statusMessage.classList.remove('text-green-400');
+                statusMessage.classList.add('text-red-400');
+                return;
+            }
+
+            if (!userId) {
+                statusMessage.textContent = 'Please sign in to send a request.';
+                statusMessage.classList.remove('text-green-400');
+                statusMessage.classList.add('text-red-400');
+                return;
+            }
+
+            sendButton.disabled = true;
+            statusMessage.textContent = 'Sending...';
+            statusMessage.classList.remove('text-red-400', 'text-green-400');
+            statusMessage.classList.add('text-silver/50');
+            
+            const inquiryDocRef = doc(db, `artifacts/${appId}/users/${userId}/tutoring_inquiries/inquiry_${Date.now()}`);
+
+            try {
+                await setDoc(inquiryDocRef, {
+                    name,
+                    email,
+                    message,
+                    timestamp: new Date().toISOString(),
+                });
+                statusMessage.textContent = 'Request sent successfully! We will contact you soon.';
+                statusMessage.classList.remove('text-red-400', 'text-silver/50');
+                statusMessage.classList.add('text-green-400');
+                document.getElementById('inquiry-form').reset();
+            } catch (e) {
+                console.error("Error sending inquiry:", e);
+                statusMessage.textContent = 'An error occurred. Please try again later.';
+                statusMessage.classList.remove('text-green-400', 'text-silver/50');
+                statusMessage.classList.add('text-red-400');
+            } finally {
+                sendButton.disabled = false;
+            }
+        };
+    </script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --primary-silver: #C0C0C0;
+            --dark-bg: #0A0A0A;
+            --glass-bg: rgba(255, 255, 255, 0.05);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --text-primary: #E5E7EB;
+            --text-secondary: rgba(192, 192, 192, 0.8);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--text-primary);
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .font-poppins {
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .text-silver {
+            color: var(--primary-silver);
+        }
+
+        .glassmorphism {
+            backdrop-filter: blur(15px);
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .glassmorphism-strong {
+            backdrop-filter: blur(20px);
+            background-color: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .animated-scroll-fade {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 1s ease-out, transform 1s ease-out;
+        }
+        
+        .animated-scroll-fade.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .input-field {
+            background-color: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease-in-out;
+            font-size: 1rem;
+        }
+        
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary-silver);
+            background-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(192, 192, 192, 0.1);
+        }
+
+        .input-field::placeholder {
+            color: rgba(192, 192, 192, 0.6);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, rgba(192, 192, 192, 0.1), rgba(255, 255, 255, 0.05));
+            border: 1px solid var(--primary-silver);
+            color: white;
+            padding: 0.875rem 2rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.6s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(192, 192, 192, 0.9));
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(192, 192, 192, 0.3);
+        }
+
+        .hero-gradient {
+            background: radial-gradient(ellipse at center, rgba(192, 192, 192, 0.1) 0%, transparent 70%);
+        }
+
+        .section-separator {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(192, 192, 192, 0.3), transparent);
+            margin: 4rem 0;
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 40px rgba(192, 192, 192, 0.1);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .pulse-glow {
+            animation: pulseGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes pulseGlow {
+            0%, 100% { box-shadow: 0 0 20px rgba(192, 192, 192, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(192, 192, 192, 0.6); }
+        }
+
+        /* Mobile responsiveness improvements */
+        @media (max-width: 768px) {
+            .hero-title {
+                font-size: 2.5rem;
+                line-height: 1.1;
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+            }
+            
+            .section-padding {
+                padding: 3rem 1rem;
+            }
+        }
+
+        /* Canvas styling */
+        #hero-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* Smooth scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body class="bg-[#0A0A0A] text-white">
+
+    <!-- Global fixed background 3D canvas -->
+    <canvas id="hero-canvas" class="fixed inset-0 w-full h-full z-0 pointer-events-none"></canvas>
+
+    <!-- Sticky Header -->
+    <header class="fixed top-0 left-0 right-0 z-50 px-4 md:px-8 py-4 glassmorphism-strong rounded-b-xl border-t-0">
+        <div class="container mx-auto flex justify-between items-center">
+            <a href="#" class="font-poppins text-lg md:text-xl font-bold tracking-wider text-white hover:text-silver transition-colors duration-300" onclick="navigateTo('hero-section')">SHAPED PRODUCTS</a>
+            <nav class="hidden md:flex space-x-6">
+                <a href="services.html" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Custom Services
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#trading-ai-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Trading Bot
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#young-starters-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    Young Starters
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+                <a href="#ai-tutoring-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300 relative group">
+                    AI Tutoring
+                    <span class="absolute -bottom-1 left-0 w-0 h-0.5 bg-silver transition-all duration-300 group-hover:w-full"></span>
+                </a>
+            </nav>
+            <!-- Mobile menu button -->
+            <button class="md:hidden text-white" onclick="toggleMobileMenu()">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
+        </div>
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden mt-4 pt-4 border-t border-white/10">
+            <nav class="flex flex-col space-y-3">
+                <a href="services.html" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Custom Services</a>
+                <a href="#trading-ai-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Trading Bot</a>
+                <a href="#young-starters-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">Young Starters</a>
+                <a href="#ai-tutoring-section" class="text-sm font-medium text-white/80 hover:text-white transition-colors duration-300" onclick="toggleMobileMenu()">AI Tutoring</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <!-- Hero Section -->
+        <section id="hero-section" class="relative h-screen flex flex-col justify-center items-center text-center p-4 md:p-8 overflow-hidden hero-gradient">
+            
+            <div class="relative z-10 hero-content opacity-0 max-w-5xl mx-auto">
+                <h1 class="font-poppins hero-title text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-bold tracking-tighter mb-6 text-white">
+                    SHAPED PRODUCTS
+                </h1>
+                <p class="hero-subtitle text-lg sm:text-xl md:text-2xl lg:text-3xl text-silver/90 font-inter mb-8 max-w-4xl mx-auto">
+                    Unlock smarter results with next-gen AI, modern web design, and automated tools built for your ambition. Shaped Products is where real innovation meets real opportunity
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                    <a href="#trading-ai-section" class="btn-primary inline-flex items-center">
+                        Explore Our Services
+                        <svg class="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </a>
+                    <a href="#ai-tutoring-section" class="btn-primary bg-transparent border-2 border-silver/50 hover:border-silver">
+                        Get Started Today
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Trading Bot Section -->
+        <section id="trading-ai-section" class="section-padding py-16 md:py-24 px-4 md:px-8">
+            <div class="container mx-auto max-w-6xl">
+                <div class="text-center mb-16 animated-scroll-fade">
+                    <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">AI Trading Solutions</h2>
+                    <p class="text-lg md:text-xl text-silver/80 mb-4 max-w-3xl mx-auto">
+                        Leverage advanced artificial intelligence to analyze markets and execute trades with precision. Choose between signal guidance or full automation.
+                    </p>
+                    <div class="section-separator"></div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12">
+                    <div class="glassmorphism p-8 lg:p-10 rounded-3xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="mb-6">
+                            <div class="w-16 h-16 bg-gradient-to-br from-silver/20 to-silver/10 rounded-2xl flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Signals Package</h3>
+                            <p class="text-silver/80 mb-6 leading-relaxed">
+                                Receive real-time buy/sell signals with detailed market analysis. You maintain full control over execution while benefiting from AI insights.
+                            </p>
+                        </div>
+                        <ul class="space-y-3 mb-8 text-sm text-silver/70">
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Real-time market signals
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Detailed analysis reports
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Full execution control
+                            </li>
+                        </ul>
+                        <a href="#ai-tutoring-section" class="btn-primary w-full text-center inline-block">
+                            Learn More
+                        </a>
+                    </div>
+                    
+                    <div class="glassmorphism p-8 lg:p-10 rounded-3xl border border-silver/20 card-hover animated-scroll-fade pulse-glow">
+                        <div class="mb-6">
+                            <div class="w-16 h-16 bg-gradient-to-br from-silver/20 to-silver/10 rounded-2xl flex items-center justify-center mb-4">
+                                <svg class="w-8 h-8 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                                </svg>
+                            </div>
+                            <h3 class="font-poppins font-bold text-2xl mb-4 text-white">Automated System</h3>
+                            <p class="text-silver/80 mb-6 leading-relaxed">
+                                Complete hands-off trading with our advanced AI executing strategies 24/7. Optimized for performance and risk management.
+                            </p>
+                        </div>
+                        <ul class="space-y-3 mb-8 text-sm text-silver/70">
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                24/7 automated trading
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Advanced risk management
+                            </li>
+                            <li class="flex items-center">
+                                <svg class="w-4 h-4 text-green-400 mr-3" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414L8 15.414l-4.707-4.707a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                                </svg>
+                                Performance optimization
+                            </li>
+                        </ul>
+                        <a href="#ai-tutoring-section" class="btn-primary w-full text-center inline-block">
+                            Get Started
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Young Starters Section -->
+        <section id="young-starters-section" class="section-padding py-16 md:py-24 px-4 md:px-8">
+            <div class="container mx-auto max-w-5xl">
+                <div class="text-center mb-16 animated-scroll-fade">
+                    <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">Empowering Young Minds</h2>
+                    <p class="text-lg md:text-xl text-silver/80 mb-4 max-w-3xl mx-auto">
+                        Transform your ambition into success with our comprehensive youth development programs and entrepreneurial guidance.
+                    </p>
+                    <div class="section-separator"></div>
+                </div>
+                
+                <div class="space-y-6">
+                    <div class="glassmorphism p-6 md:p-8 rounded-2xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-silver/20 to-silver/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-poppins font-bold text-xl md:text-2xl mb-3 text-white">Build Your Side Hustle</h3>
+                                <p class="text-silver/80 leading-relaxed">Creative and actionable business plans designed for young entrepreneurs. Learn to monetize your skills using modern digital tools and proven strategies.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glassmorphism p-6 md:p-8 rounded-2xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-silver/20 to-silver/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-poppins font-bold text-xl md:text-2xl mb-3 text-white">Master Your Finances</h3>
+                                <p class="text-silver/80 leading-relaxed">Comprehensive financial literacy program covering budgeting, saving strategies, and smart investment principles tailored for young adults.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glassmorphism p-6 md:p-8 rounded-2xl border border-silver/20 card-hover animated-scroll-fade">
+                        <div class="flex flex-col md:flex-row items-start md:items-center space-y-4 md:space-y-0 md:space-x-6">
+                            <div class="w-12 h-12 bg-gradient-to-br from-silver/20 to-silver/10 rounded-xl flex items-center justify-center flex-shrink-0">
+                                <svg class="w-6 h-6 text-silver" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path>
+                                </svg>
+                            </div>
+                            <div class="flex-1">
+                                <h3 class="font-poppins font-bold text-xl md:text-2xl mb-3 text-white">The Entrepreneur's Toolkit</h3>
+                                <p class="text-silver/80 leading-relaxed">Access our curated collection of digital tools, resources, and templates designed to help you launch and scale your business ideas effectively.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- AI Tutoring Section -->
+        <section id="ai-tutoring-section" class="section-padding py-16 md:py-24 px-4 md:px-8">
+            <div class="container mx-auto max-w-4xl">
+                <div class="text-center mb-12 animated-scroll-fade">
+                    <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-6">AI Tutoring & Consultation</h2>
+                    <div class="section-separator"></div>
+                </div>
+                
+                <div class="glassmorphism-strong p-8 md:p-12 rounded-3xl animated-scroll-fade float-animation">
+                    <div class="text-center mb-8">
+                        <p class="text-lg md:text-xl text-silver/90 mb-4">
+                            Ready to transform your future? Get a personalized consultation to discover how our solutions can accelerate your success.
+                        </p>
+                        <div class="inline-flex items-center px-6 py-3 bg-gradient-to-r from-silver/20 to-silver/10 rounded-full">
+                            <svg class="w-5 h-5 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            <span class="text-sm font-medium text-green-400">£200 Value Bundle Included</span>
+                        </div>
+                    </div>
+                    
+                    <form id="inquiry-form" class="space-y-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <input type="text" id="inquiry-name" placeholder="Your Full Name" class="input-field" required>
+                            <input type="email" id="inquiry-email" placeholder="Your Email Address" class="input-field" required>
+                        </div>
+                        <textarea id="inquiry-message" placeholder="Tell us about your goals and how we can help you succeed..." class="input-field w-full h-32 resize-none" required></textarea>
+                        
+                        <div class="text-center">
+                            <button id="send-inquiry-btn" type="button" onclick="sendInquiry()" class="btn-primary px-12 py-4 text-lg font-semibold">
+                                <span id="btn-text">Send My Request</span>
+                                <span id="btn-loading" class="hidden">
+                                    <span class="loading-spinner mr-2"></span>
+                                    Sending...
+                                </span>
+                            </button>
+                        </div>
+                        
+                        <div id="inquiry-status" class="text-center text-sm font-medium"></div>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- Final Call-to-Action Section -->
+        <section class="section-padding py-16 md:py-24 px-4 md:px-8 text-center" id="cta-section">
+            <div class="container mx-auto max-w-4xl animated-scroll-fade">
+                <h2 class="font-poppins text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-8">
+                    Your Future Starts Now
+                </h2>
+                <p class="text-lg md:text-xl text-silver/80 mb-12 max-w-2xl mx-auto">
+                    Join thousands of satisfied clients who have transformed their lives with our innovative solutions.
+                </p>
+                <a href="#ai-tutoring-section" class="btn-primary px-12 py-4 text-lg font-semibold">
+                    BEGIN YOUR JOURNEY
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="py-12 px-4 md:px-8 border-t border-silver/10">
+        <div class="container mx-auto max-w-6xl">
+            <div class="text-center">
+                <p class="font-poppins text-xl font-bold text-white mb-4">SHAPED PRODUCTS</p>
+                <p class="text-silver/60 text-sm">© 2025 Shaped Products. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Enhanced 3D Model Integration with GLB Loader
+        const canvas = document.getElementById('hero-canvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        renderer.outputEncoding = THREE.sRGBEncoding;
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.2;
+        
+        // Enhanced lighting setup
+        const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+        scene.add(ambientLight);
+        
+        const directionalLight = new THREE.DirectionalLight(0xC0C0C0, 1.2);
+        directionalLight.position.set(5, 5, 5);
+        directionalLight.castShadow = true;
+        scene.add(directionalLight);
+        
+        const pointLight1 = new THREE.PointLight(0xC0C0C0, 0.8, 50);
+        pointLight1.position.set(-5, 3, 2);
+        scene.add(pointLight1);
+        
+        const pointLight2 = new THREE.PointLight(0x8080FF, 0.6, 40);
+        pointLight2.position.set(3, -2, -3);
+        scene.add(pointLight2);
+
+        let model3D = null;
+        let mixer = null;
+        const clock = new THREE.Clock();
+
+        // Load GLB model with fallback
+        const loader = new THREE.GLTFLoader();
+        
+        // Try to load the GLB model
+        loader.load(
+            './assets/models/model.glb',
+            function (gltf) {
+                model3D = gltf.scene;
+                model3D.scale.set(1.5, 1.5, 1.5);
+                model3D.position.set(0, 0, 0);
+                
+                // Set up animations if available
+                if (gltf.animations && gltf.animations.length) {
+                    mixer = new THREE.AnimationMixer(model3D);
+                    gltf.animations.forEach((clip) => {
+                        mixer.clipAction(clip).play();
+                    });
+                }
+                
+                // Enhanced material properties
+                model3D.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                        if (child.material) {
+                            child.material.envMapIntensity = 1.5;
+                            child.material.metalness = Math.min(child.material.metalness + 0.2, 1);
+                            child.material.roughness = Math.max(child.material.roughness - 0.1, 0);
+                        }
+                    }
+                });
+                
+                scene.add(model3D);
+                console.log('GLB model loaded successfully');
+            },
+            function (progress) {
+                console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
+            },
+            function (error) {
+                console.log('GLB loading failed, using fallback geometry');
+                createFallbackGeometry();
+            }
+        );
+        
+        // Fallback geometry function
+        function createFallbackGeometry() {
+            const geometry = new THREE.IcosahedronGeometry(2.5, 1);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0xC0C0C0,
+                metalness: 0.8,
+                roughness: 0.2,
+                envMapIntensity: 1.5
+            });
+            model3D = new THREE.Mesh(geometry, material);
+            model3D.castShadow = true;
+            model3D.receiveShadow = true;
+            scene.add(model3D);
+        }
+
+        camera.position.z = 6;
+        camera.position.y = 1;
+
+        let mouseX = 0, mouseY = 0;
+        let targetRotationX = 0, targetRotationY = 0;
+        const windowHalfX = window.innerWidth / 2;
+        const windowHalfY = window.innerHeight / 2;
+
+        // Enhanced mouse interaction
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX - windowHalfX) / windowHalfX;
+            mouseY = (event.clientY - windowHalfY) / windowHalfY;
+        });
+        
+        document.addEventListener('touchmove', (event) => {
+            if (event.touches.length > 0) {
+                mouseX = (event.touches[0].clientX - windowHalfX) / windowHalfX;
+                mouseY = (event.touches[0].clientY - windowHalfY) / windowHalfY;
+            }
+        });
+
+        const heroContent = document.querySelector('.hero-content');
+        let initialScale = 0.01;
+        let targetScale = 1;
+        let hasContentAnimated = false;
+        
+        // Enhanced animation loop
+        const animate = () => {
+            requestAnimationFrame(animate);
+            const deltaTime = clock.getDelta();
+
+            if (model3D) {
+                // Smooth scale animation
+                if (initialScale < targetScale) {
+                    initialScale += 0.015;
+                    model3D.scale.set(initialScale * 1.5, initialScale * 1.5, initialScale * 1.5);
+                } else if (!hasContentAnimated && heroContent.classList.contains('opacity-0')) {
+                    // Animate hero content after model has appeared
+                    heroContent.style.opacity = '1';
+                    heroContent.style.transition = 'opacity 2s ease-out, transform 2s ease-out';
+                    heroContent.style.transform = 'translateY(0)';
+                    hasContentAnimated = true;
+                }
+
+                // Enhanced parallax and rotation with dynamic movement like 8bit.ai
+                const scrollFactor = Math.min(window.scrollY / (document.body.scrollHeight - window.innerHeight), 1);
+                const normalizedScroll = window.scrollY / window.innerHeight;
+                
+                // Smooth mouse-based rotation
+                targetRotationX = mouseY * 0.3;
+                targetRotationY = mouseX * 0.3;
+                
+                if (model3D.rotation) {
+                    model3D.rotation.x += (targetRotationX - model3D.rotation.x) * 0.05;
+                    model3D.rotation.y += (targetRotationY - model3D.rotation.y) * 0.05;
+                    
+                    // Add continuous rotation influenced by scroll
+                    model3D.rotation.z += 0.002 + (scrollFactor * 0.003);
+                }
+                
+                // Dynamic parallax movement - model moves across screen as user scrolls
+                if (normalizedScroll <= 1) {
+                    // In hero section - center position with subtle movement
+                    model3D.position.x = Math.sin(normalizedScroll * Math.PI * 0.5) * 1.5;
+                    model3D.position.y = Math.cos(normalizedScroll * Math.PI * 0.3) * 0.8;
+                    model3D.position.z = -normalizedScroll * 2;
+                } else if (normalizedScroll <= 2) {
+                    // Moving to right side as user scrolls to trading section
+                    const sectionProgress = normalizedScroll - 1;
+                    model3D.position.x = 1.5 + (sectionProgress * 4); // Move right
+                    model3D.position.y = 0.8 - (sectionProgress * 1.5); // Move down
+                    model3D.position.z = -2 - (sectionProgress * 1);
+                } else if (normalizedScroll <= 3) {
+                    // Moving to left side for young starters section
+                    const sectionProgress = normalizedScroll - 2;
+                    model3D.position.x = 5.5 - (sectionProgress * 8); // Move to left
+                    model3D.position.y = -0.7 - (sectionProgress * 1); // Continue down
+                    model3D.position.z = -3 - (sectionProgress * 1);
+                } else {
+                    // Final position - bottom right for tutoring section
+                    const finalProgress = Math.min((normalizedScroll - 3) * 0.5, 1);
+                    model3D.position.x = -2.5 + (finalProgress * 3); // Move back to right
+                    model3D.position.y = -1.7 - (finalProgress * 1.5); // Move further down
+                    model3D.position.z = -4 - (finalProgress * 2);
+                }
+                
+                // Add subtle floating animation
+                const time = clock.getElapsedTime();
+                model3D.position.y += Math.sin(time * 0.5) * 0.1;
+            }
+
+            // Update animations
+            if (mixer) {
+                mixer.update(deltaTime);
+            }
+
+            renderer.render(scene, camera);
+        };
+        
+        // Enhanced loading and initialization
+        window.addEventListener('load', function() {
+            animate();
+            
+            // Trigger scroll animations
+            setTimeout(() => {
+                const event = new Event('scroll');
+                window.dispatchEvent(event);
+            }, 100);
+        });
+
+        // Responsive handling
+        window.addEventListener('resize', () => {
+            const width = window.innerWidth;
+            const height = window.innerHeight;
+            renderer.setSize(width, height);
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+        });
+
+        // Enhanced scroll animations
+        const faders = document.querySelectorAll('.animated-scroll-fade');
+        const appearOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const appearOnScroll = new IntersectionObserver(function(entries, appearOnScroll) {
+            entries.forEach(entry => {
+                if (!entry.isIntersecting) {
+                    return;
+                } else {
+                    entry.target.classList.add('is-visible');
+                    appearOnScroll.unobserve(entry.target);
+                }
+            });
+        }, appearOptions);
+
+        faders.forEach(fader => {
+            appearOnScroll.observe(fader);
+        });
+
+        // Mobile menu functionality
+        window.toggleMobileMenu = () => {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('hidden');
+        };
+
+        // Enhanced inquiry form functionality
+        const originalSendInquiry = window.sendInquiry;
+        window.sendInquiry = async () => {
+            const sendButton = document.getElementById('send-inquiry-btn');
+            const btnText = document.getElementById('btn-text');
+            const btnLoading = document.getElementById('btn-loading');
+            
+            // Show loading state
+            btnText.classList.add('hidden');
+            btnLoading.classList.remove('hidden');
+            
+            try {
+                await originalSendInquiry();
+            } finally {
+                // Reset button state
+                setTimeout(() => {
+                    btnText.classList.remove('hidden');
+                    btnLoading.classList.add('hidden');
+                }, 2000);
+            }
+        };
+
+        // Smooth scrolling enhancement
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Performance optimization
+        let ticking = false;
+        function updateOnScroll() {
+            // Throttle scroll events for better performance
+            if (!ticking) {
+                requestAnimationFrame(() => {
+                    // Add any scroll-based animations here
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }
+
+        window.addEventListener('scroll', updateOnScroll, { passive: true });
+    </script>
+</body>
+</html>

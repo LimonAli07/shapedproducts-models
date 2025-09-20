@@ -1,0 +1,43 @@
+{
+  "name": "shaped-products-website",
+  "version": "1.0.0",
+  "description": "SHAPED PRODUCTS - Modern website with 3D model integration and AI-powered solutions",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000",
+    "serve": "npx serve . -p 8000",
+    "build": "echo 'No build process required - static website'",
+    "deploy": "echo 'Configure your deployment process here'"
+  },
+  "keywords": [
+    "ai",
+    "trading",
+    "automation",
+    "tutoring",
+    "3d",
+    "webgl",
+    "three.js",
+    "glassmorphism",
+    "responsive"
+  ],
+  "author": "SHAPED PRODUCTS",
+  "license": "UNLICENSED",
+  "private": true,
+  "devDependencies": {
+    "serve": "^14.2.1"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "."
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead",
+    "not ie 11"
+  ]
+}
