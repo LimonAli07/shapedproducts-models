@@ -1,54 +1,8 @@
-# Dependencies
-node_modules/
+# Exclude everything
+*
 
-# Environment variables (contains secrets)
-.env
-.env.local
-.env.*.local
+# Except README
+!README.md
 
-# Logs
-*.log
-npm-debug.log*
-
-# OS files
-.DS_Store
-Thumbs.db
-
-# IDE files
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Build output
-dist/
-build/
-
-# Temporary files
-*.tmp
-*.temp
-
-# Cloudflare
-.wrangler/
-
-# Internal documentation
-DIAGNOSIS-CONFIRMED.md
-ERROR-522-FIX.md
-WWW-DOMAIN-FIX.md
-
-# Development scripts
-dev-server.ps1
-start-server.ps1
-
-# VS Code workspace
-*.code-workspace
-
-# Specify
-.specify/
-
-# Server (not needed for static deployment)
-server.js
-ecosystem.config.js
-
-# Misc
-idk
+# And .gitignore itself
+!.gitignore
