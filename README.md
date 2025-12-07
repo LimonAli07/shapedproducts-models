@@ -8,7 +8,7 @@
 
 ## About
 
-SHAPED PRODUCTS is a technology solutions company specializing in custom website development, build automation, and AI-powered applications. This repository contains the source code for the official company website.
+SHAPED PRODUCTS is a technology solutions company specializing in custom website development, build automation, and AI-powered applications. This repository contains the about for the official company website.
 
 ---
 
